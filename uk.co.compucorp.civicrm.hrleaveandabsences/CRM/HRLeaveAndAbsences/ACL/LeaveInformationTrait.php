@@ -81,7 +81,7 @@ trait CRM_HRLeaveAndAbsences_ACL_LeaveInformationTrait {
    *
    * @return string
    */
-  private function getLeaveApproverRelationshipWhereClause() {
+  public function getLeaveApproverRelationshipWhereClause() {
     $loggedInUserID = (int) CRM_Core_Session::getLoggedInContactID();
     $today = date('Y-m-d');
 

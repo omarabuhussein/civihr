@@ -428,25 +428,8 @@ function hrleaveandabsences_civicrm_validateForm($formName, &$fields, &$files, &
 }
 
 function hrleaveandabsences_civicrm_aclWhereClause($type, &$tables, &$whereTables, &$contactID, &$where) {
-  if (!$contactID) {
-    return;
-  }
-
-  $relationshipTable = CRM_Contact_BAO_Relationship::getTableName();
-  $relationshipTypeTable = CRM_Contact_BAO_RelationshipType::getTableName();
-
-  $whereTables['r'] = "LEFT JOIN {$relationshipTable} r ON contact_a.id = r.contact_id_a";
-  $whereTables['rt'] = "LEFT JOIN {$relationshipTypeTable} rt ON rt.id = r.relationship_type_id";
-
-  $today = date('Y-m-d');
-  $leaveApproverRelationships = Civi::service('hrleaveandabsences.settings_manager')->get('relationship_types_allowed_to_approve_leave');
-  $whereStr = "(r.is_active = 1 AND
-        rt.is_active = 1 AND
-        rt.id IN(" . implode(',', $leaveApproverRelationships) . ") AND
-        r.contact_id_b = {$contactID} AND
-        (r.start_date IS NULL OR r.start_date <= '$today') AND
-        (r.end_date IS NULL OR r.end_date >= '$today'))";
-  $where = trim($where) ? "(({$where}) OR ({$whereStr}))" : $whereStr;
+  $leaveApproverACL = new CRM_HRLeaveAndAbsences_ACL_LeaveApprover();
+  $leaveApproverACL->addRules($type, $tables, $whereTables, $contactID, $where);
 }
 
 
