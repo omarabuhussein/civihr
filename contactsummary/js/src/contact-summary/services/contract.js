@@ -128,7 +128,7 @@ define([
      * @name getContractDetails
      * @methodOf ContractService
      * @param id
-     * @returns {*}
+     * @returns {Promise}
      */
     factory.getContractDetails = function (id) {
       var addPay = function (details) {
@@ -160,23 +160,24 @@ define([
       };
 
       var cacheKey = 'getContractDetails_' + id;
+
       if (!promiseCache[cacheKey]) {
-            promiseCache[cacheKey] = Api.post('HRJobDetails', data, 'get')
-              .then(function (response) {
-                if (response.values.length === 0) {
-                  return $q.reject('No details found for contract revision with ID ' + id);
-                }
+        promiseCache[cacheKey] = Api.post('HRJobDetails', data, 'get')
+          .then(function (response) {
+            if (response.values.length === 0) {
+              return $q.reject('No details found for contract revision with ID ' + id);
+            }
 
-                var details = response.values[0];
+            var details = response.values[0];
 
-                addPay(details);
-                addHours(details);
+            addPay(details);
+            addHours(details);
 
-                return details;
-              });
-          }
+            return details;
+          });
+      }
 
-          return promiseCache[cacheKey];
+      return promiseCache[cacheKey];
     };
 
     /**
@@ -247,10 +248,10 @@ define([
       var deferred = $q.defer();
       if (_.isEmpty(factory.collection.get())) {
         factory.getContracts()
-                .then(assembleContracts)
-                .finally(function () {
-                  deferred.resolve();
-                });
+          .then(assembleContracts)
+          .finally(function () {
+            deferred.resolve();
+          });
       } else {
         deferred.resolve();
       }
@@ -275,7 +276,6 @@ define([
 
         var promise = factory.getContractDetails(contract.id)
           .then(function (response) {
-            console.log(response);
             assembledContract.title = response.title;
             assembledContract.start_date = response.period_start_date;
             assembledContract.end_date = response.period_end_date;
