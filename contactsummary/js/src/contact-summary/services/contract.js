@@ -159,8 +159,9 @@ define([
         'api.HRJobHour.get': {'jobcontract_id': id}
       };
 
-      if (!promiseCache.getContractDetails) {
-            promiseCache.getContractDetails = Api.post('HRJobDetails', data, 'get')
+      var cacheKey = 'getContractDetails_' + id;
+      if (!promiseCache[cacheKey]) {
+            promiseCache[cacheKey] = Api.post('HRJobDetails', data, 'get')
               .then(function (response) {
                 if (response.values.length === 0) {
                   return $q.reject('No details found for contract revision with ID ' + id);
@@ -175,7 +176,7 @@ define([
               });
           }
 
-          return promiseCache.getContractDetails;
+          return promiseCache[cacheKey];
     };
 
     /**
@@ -274,6 +275,7 @@ define([
 
         var promise = factory.getContractDetails(contract.id)
           .then(function (response) {
+            console.log(response);
             assembledContract.title = response.title;
             assembledContract.start_date = response.period_start_date;
             assembledContract.end_date = response.period_end_date;
