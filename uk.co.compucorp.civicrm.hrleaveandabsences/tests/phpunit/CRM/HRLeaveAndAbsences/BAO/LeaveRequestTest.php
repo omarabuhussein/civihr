@@ -964,21 +964,19 @@ class CRM_HRLeaveAndAbsences_BAO_LeaveRequestTest extends BaseHeadlessTest {
       'request_type' => LeaveRequest::REQUEST_TYPE_LEAVE
     ];
 
+    // Create new request by staff with Awaiting Approval status
+    $leaveRequest = LeaveRequestFabricator::fabricateWithoutValidation($leaveRequestData, true);
+
     $this->setExpectedException(
       'CRM_HRLeaveAndAbsences_Exception_InvalidLeaveRequestException',
       'There are only '. $entitlementBalance .' days leave available. This request cannot be made or approved'
     );
 
-    // Create new request by staff with Awaiting Approval status
-    $leaveRequest = LeaveRequestFabricator::fabricateWithoutValidation($leaveRequestData, true);
     // Approve leave request by manager
     $updatedLeaveRequestData = $leaveRequestData;
     $updatedLeaveRequestData['id'] = $leaveRequest->id;
     $updatedLeaveRequestData['status_id'] = $leaveRequestStatuses['approved'];
     $updatedLeaveRequest = LeaveRequest::create($updatedLeaveRequestData);
-
-    // Test that the status has not been changed
-    $this->assertEquals($updatedLeaveRequest->status_id, $leaveRequestStatuses['awaiting_approval']);
   }
 
   public function testManagerCanNotSetLeaveRequestStatusToMoreInformationRequiredIfBalanceChangeIsMoreThanEntitlementBalanceWhenAllowOveruseFalse() {
@@ -1036,21 +1034,19 @@ class CRM_HRLeaveAndAbsences_BAO_LeaveRequestTest extends BaseHeadlessTest {
       'request_type' => LeaveRequest::REQUEST_TYPE_LEAVE
     ];
 
+    // Create a new request by staff with Awaiting Approval status
+    $leaveRequest = LeaveRequestFabricator::fabricateWithoutValidation($leaveRequestData, true);
+
     $this->setExpectedException(
       'CRM_HRLeaveAndAbsences_Exception_InvalidLeaveRequestException',
       'There are only '. $entitlementBalance .' days leave available. This request cannot be made or approved'
     );
 
-    // Create a new request by staff with Awaiting Approval status
-    $leaveRequest = LeaveRequestFabricator::fabricateWithoutValidation($leaveRequestData, true);
     // Attempt to set the status to More Information Required by manager
     $updatedLeaveRequestData = $leaveRequestData;
     $updatedLeaveRequestData['id'] = $leaveRequest->id;
     $updatedLeaveRequestData['status_id'] = $awaitingApprovalStatus;
     $updatedLeaveRequest = LeaveRequest::create($updatedLeaveRequestData);
-
-    // Test that the status has not been changed
-    $this->assertEquals($updatedLeaveRequest->status_id, $awaitingApprovalStatus);
   }
 
   public function testStaffCanNotSetLeaveRequestStatusToAwaitingApprovalIfBalanceChangeIsMoreThanEntitlementBalanceWhenAllowOveruseFalse() {
